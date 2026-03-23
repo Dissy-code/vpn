@@ -48,3 +48,58 @@ def start_server():
 
 if __name__ == "__main__":
     start_server()
+
+
+
+
+
+
+
+
+
+
+
+    import socket
+
+# Настройки сервера
+HOST = '127.0.0.1'
+PORT = 65432
+
+def start_server():
+    # Создаем TCP сокет
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            # Разрешаем повторное использование порта (чтобы не ждать после перезапуска)
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.bind((HOST, PORT))
+            s.listen()
+            print(f"Сервер запущен на {HOST}:{PORT}")
+            print("Ожидание данных (9 символов)... Нажмите Ctrl+C для выхода.")
+
+            while True:
+                conn, addr = s.accept()
+                with conn:
+                    # Устанавливаем таймаут, чтобы сокет не висел вечно
+                    conn.settimeout(5.0)
+                    try:
+                        data = conn.recv(9)
+                        if not data:
+                            continue
+
+                        msg = data.decode('utf-8').strip()
+                        
+                        # Проверяем длину (учитываем, что может прийти меньше)
+                        if len(msg) == 9:
+                            x, y, z = msg[0:3], msg[3:6], msg[6:9]
+                            print(f"[{addr}] Получено -> X: {x}, Y: {y}, Z: {z}")
+                            conn.sendall(b"OK")
+                        else:
+                            print(f"[{addr}] Неверный формат: {msg}")
+                            conn.sendall(b"ERROR: Need 9 chars")
+                    except Exception as e:
+                        print(f"Ошибка при обработке данных: {e}")
+    except Exception as e:
+        print(f"Не удалось запустить сервер: {e}")
+
+if __name__ == "__main__":
+    start_server()
