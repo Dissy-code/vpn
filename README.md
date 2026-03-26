@@ -4,6 +4,8 @@
 hysteria2://Linuxasdf12jngb@vpn.dissyserv.ru:443/?insecure=1&sni=web.max.ru#1
 
 
+hysteria2://Linuxasdf12jngb@strayfi.ru:443?security=tls&insecure=1&sni=web.max.ru#dissy
+
 
 import socket
 
