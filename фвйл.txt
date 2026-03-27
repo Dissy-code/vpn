@@ -1,0 +1,81 @@
+Sub CompleteAllTasks()
+    Dim doc As Document: Set doc = ActiveDocument
+    Dim sel As Selection: Set sel = Application.Selection
+    Dim i As Integer
+    
+    ' Настройка страницы
+    doc.PageSetup.TopMargin = CentimetersToPoints(2)
+    
+    ' --- ЗАДАНИЕ 5.2: СХЕМА ПРЕДПРИЯТИЯ ---
+    InsertTitle sel, "Задание 5.2. Схема финансовой службы"
+    Dim smartArtObj As SmartArt
+    Set smartArtObj = doc.Shapes.AddSmartArt(Application.SmartArtLayouts("urn:microsoft.com/office/officeart/2005/8/layout/orgchart1")).SmartArt
+    smartArtObj.AllNodes(1).TextFrame2.TextRange.Text = "Президент"
+    smartArtObj.AllNodes.Add.TextFrame2.TextRange.Text = "Вице-президент по финансам"
+    smartArtObj.AllNodes.Add.TextFrame2.TextRange.Text = "Контролер"
+    
+    GoToNextPage sel
+    
+    ' --- ЗАДАНИЕ 6.3: ТАБЛИЦА С ФОРМУЛАМИ ---
+    InsertTitle sel, "Задание 6.3. Таблица производных"
+    Dim tbl As Table
+    Set tbl = doc.Tables.Add(sel.Range, 4, 2)
+    tbl.Borders.Enable = True
+    tbl.Cell(1, 1).Range.Text = "Функция"
+    tbl.Cell(1, 2).Range.Text = "Производная"
+    
+    ' Заполнение таблицы формулами
+    AddFormulaToCell tbl.Cell(2, 1), "x^n"
+    AddFormulaToCell tbl.Cell(2, 2), "nx^(n-1)"
+    AddFormulaToCell tbl.Cell(3, 1), "e^(x-2)"
+    AddFormulaToCell tbl.Cell(3, 2), "e^(x+5)"
+    
+    GoToNextPage sel
+
+    ' --- ЗАДАНИЕ 6.4 & 6.2: МАТЕМАТИЧЕСКИЙ БЛОК ---
+    InsertTitle sel, "Задания 6.2, 6.4, 6.5. Сложные формулы"
+    
+    ' Формула сочетаний (Задание 6.2)
+    InsertEquation sel, "(g \over r) = g! / (r!(g-r)!)"
+    
+    ' Предел (Задание 6.4)
+    InsertEquation sel, "lim_(x->1) (x^2 + 2^x) / (sqrt(x+3))"
+    
+    ' Квадратное уравнение
+    InsertEquation sel, "x = (-b +- sqrt(b^2 - 4ac)) / 2a"
+    
+    ' Корреляция Пирсона (Задание 6.5)
+    InsertEquation sel, "r = (n \sum xy - (\sum x)(\sum y)) / (sqrt([n \sum x^2 - (\sum x)^2][n \sum y^2 - (\sum y)^2]))"
+
+    MsgBox "Готово! Основные структуры и примеры заполнены.", vbInformation
+End Sub
+
+' --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+Sub InsertTitle(sel As Selection, txt As String)
+    sel.Style = "Заголовок 1"
+    sel.TypeText txt & vbCrLf
+    sel.Style = "Обычный"
+End Sub
+
+Sub GoToNextPage(sel As Selection)
+    sel.EndKey Unit:=wdStory
+    sel.InsertBreak Type:=wdPageBreak
+End Sub
+
+Sub InsertEquation(sel As Selection, eqText As String)
+    Dim objRange As Range: Set objRange = sel.Range
+    sel.OMaths.Add objRange
+    Dim objEq As OMath: Set objEq = sel.OMaths(sel.OMaths.Count)
+    objEq.Range.Text = eqText
+    objEq.BuildUp
+    sel.TypeText vbCrLf
+End Sub
+
+Sub AddFormulaToCell(c As Cell, eqText As String)
+    Dim r As Range: Set r = c.Range
+    r.End = r.End - 1
+    c.Application.Selection.Range.OMaths.Add r
+    Dim eq As OMath: Set eq = r.OMaths(1)
+    eq.Range.Text = eqText
+    eq.BuildUp
+End Sub
