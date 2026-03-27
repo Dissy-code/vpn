@@ -1,0 +1,58 @@
+Sub CompleteAllTasks()
+    Dim doc As Document: Set doc = ActiveDocument
+    Dim sel As Selection: Set sel = Application.Selection
+    
+    ' --- TASK 5.2: ORG CHART ---
+    InsertTitle sel, "Task 5.2. Financial Service Schema"
+    Dim sa As SmartArt
+    Set sa = doc.Shapes.AddSmartArt(Application.SmartArtLayouts("urn:microsoft.com/office/officeart/2005/8/layout/orgchart1")).SmartArt
+    sa.AllNodes(1).TextFrame2.TextRange.Text = "President"
+    
+    GoToNextPage sel
+    
+    ' --- TASK 6.3: TABLE ---
+    InsertTitle sel, "Task 6.3. Functions and Derivatives"
+    Dim tbl As Table: Set tbl = doc.Tables.Add(sel.Range, 4, 2)
+    tbl.Borders.Enable = True
+    tbl.Cell(1, 1).Range.Text = "Function"
+    tbl.Cell(1, 2).Range.Text = "Derivative"
+    AddFormulaToCell tbl.Cell(2, 1), "x^n"
+    AddFormulaToCell tbl.Cell(2, 2), "nx^(n-1)"
+    
+    GoToNextPage sel
+
+    ' --- TASK 6.2, 6.4, 6.5: EQUATIONS ---
+    InsertTitle sel, "Tasks 6.2, 6.4, 6.5. Math Equations"
+    InsertEquation sel, "(g \over r) = g! / (r!(g-r)!)"
+    InsertEquation sel, "lim_(x->1) (x^2 + 2^x) / (sqrt(x+3))"
+    InsertEquation sel, "r = (n \sum xy - (\sum x)(\sum y)) / (sqrt([n \sum x^2 - (\sum x)^2][n \sum y^2 - (\sum y)^2]))"
+
+    MsgBox "Done!", vbInformation
+End Sub
+
+Sub InsertTitle(sel As Selection, txt As String)
+    sel.TypeText txt & vbCrLf
+End Sub
+
+Sub GoToNextPage(sel As Selection)
+    sel.EndKey Unit:=wdStory
+    sel.InsertBreak Type:=wdPageBreak
+End Sub
+
+Sub InsertEquation(sel As Selection, eqText As String)
+    Dim r As Range: Set r = sel.Range
+    sel.OMaths.Add r
+    Dim eq As OMath: Set eq = sel.OMaths(sel.OMaths.Count)
+    eq.Range.Text = eqText
+    eq.BuildUp
+    sel.TypeText vbCrLf
+End Sub
+
+Sub AddFormulaToCell(c As Cell, eqText As String)
+    Dim r As Range: Set r = c.Range
+    r.End = r.End - 1
+    c.Application.Selection.Range.OMaths.Add r
+    Dim eq As OMath: Set eq = r.OMaths(1)
+    eq.Range.Text = eqText
+    eq.BuildUp
+End Sub
